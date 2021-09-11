@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Zach Thompson <zach@allotropic.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
+description = "Weather from the US National Weather Service."
+homepage = "https://github.com/zthompson47/wthr"
+repository = "https://github.com/zthompson47/wthr"
 keywords = ["weather", "nws", "forecast", "cli", "types"]
 categories = ["command-line-utilities", "web-programming::http-client"]
 
