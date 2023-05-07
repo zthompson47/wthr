@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::{Date, DateTime, Datelike, Local, TimeZone, Timelike, Utc};
+use chrono::{DateTime, Datelike, Local, TimeZone, Timelike, Utc};
 use chrono_tz::Tz;
 use colorgrad::{Color, CustomGradient};
 use crossterm::style::{self, Stylize};
@@ -70,9 +70,9 @@ async fn main() -> Result<()> {
         .domain(&[0., 32., 72., 84.])
         .build()?;
 
-    fn sun(lat: f64, lon: f64, date: Date<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
+    fn sun(lat: f64, lon: f64, date: DateTime<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
         let (rise, set) = sunrise_sunset(lat, lon, date.year(), date.month(), date.day());
-        (Utc.timestamp(rise, 0), Utc.timestamp(set, 0))
+        (Utc.timestamp_opt(rise, 0).unwrap(), Utc.timestamp_opt(set, 0).unwrap())
     }
 
     // Display time
@@ -91,7 +91,7 @@ async fn main() -> Result<()> {
     );
 
     // Display sun times
-    let (rise, set) = sun(params.latitude, params.longitude, Utc::now().date());
+    let (rise, set) = sun(params.latitude, params.longitude, Utc::now());
     let rise = Local.from_utc_datetime(&rise.naive_utc());
     let set = Local.from_utc_datetime(&set.naive_utc());
     println!(
@@ -146,7 +146,7 @@ async fn main() -> Result<()> {
     let tz = point.properties.time_zone;
 
     // Store sunrise/sunset times for each new date
-    let mut sun_times: HashMap<Date<Tz>, (DateTime<Tz>, DateTime<Tz>)> = HashMap::new();
+    let mut sun_times: HashMap<DateTime<Tz>, (DateTime<Tz>, DateTime<Tz>)> = HashMap::new();
 
     // Store last description to avoid printing redundant lines
     let mut last_desc = String::new();
@@ -158,7 +158,7 @@ async fn main() -> Result<()> {
             .unwrap();
         //println!("{:?}", local_time);
         //let time = DateTime::from_utc(period.start_time.naive_utc(), Utc);
-        let date = time.date();
+        let date = time;
 
         let (sunrise, sunset) = sun_times.entry(date).or_insert({
             let (rise, set) = sunrise_sunset(
@@ -168,7 +168,7 @@ async fn main() -> Result<()> {
                 date.month(),
                 date.day(),
             );
-            (tz.timestamp(rise, 0), tz.timestamp(set, 0))
+            (tz.timestamp_opt(rise, 0).unwrap(), tz.timestamp_opt(set, 0).unwrap())
         });
 
         // Format time for display

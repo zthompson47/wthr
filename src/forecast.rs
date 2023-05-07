@@ -132,6 +132,7 @@ pub struct GridpointDataProperties {
     pub red_flag_threat_index: TimeSeries<Value>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeSeries<T> {
@@ -139,6 +140,7 @@ pub struct TimeSeries<T> {
     values: Vec<TimeDatum<T>>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeDatum<T> {
@@ -146,6 +148,7 @@ pub struct TimeDatum<T> {
     value: Option<T>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeatherDatum {
