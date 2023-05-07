@@ -4,7 +4,7 @@ use chrono::{DateTime, Datelike, Local, TimeZone, Timelike, Utc};
 use chrono_tz::Tz;
 use colorgrad::{Color, CustomGradient};
 use crossterm::style::{self, Stylize};
-//use esbat::{Phase::*, PrincipalPhase};
+use esbat::{Phase::*, PrincipalPhase};
 use structopt::StructOpt;
 use sunrise::sunrise_sunset;
 use url::Url;
@@ -102,9 +102,9 @@ async fn main() -> Result<()> {
         set.format("%-I:%M %P")
     );
 
-    /*
     // Display moon phase
     //let emoji = esbat::daily_lunar_phase(Utc::now().date()).as_emoji();
+    #[allow(deprecated)]
     let moon = match esbat::daily_lunar_phase(Utc::now().date()) {
         NewMoon => ("New Moon", '\u{1F311}'),
         WaxingCrescent => ("Waxing Crescent", '\u{1F312}'),
@@ -141,7 +141,6 @@ async fn main() -> Result<()> {
                 .format("%A, %B %-e, %-l:%M %P, %Y")
         );
     }
-    */
 
     let tz = point.properties.time_zone;
 

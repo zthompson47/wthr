@@ -369,6 +369,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "esbat"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "735bcc8c69f3b3f8f93abff14a36951dc2acc31eaf16ab178e991edc91bc1ffa"
+dependencies = [
+ "chrono",
+]
+
+[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2162,6 +2171,7 @@ dependencies = [
  "clap",
  "colorgrad",
  "crossterm",
+ "esbat",
  "geojson",
  "home",
  "reqwest",
