@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
-use chrono::{Date, DateTime, Datelike, Local, TimeZone, Timelike, Utc};
+use chrono::{/*Date, */DateTime, Datelike, Local, TimeZone, Timelike, Utc};
 use chrono_tz::Tz;
 use colorgrad::{Color, CustomGradient};
 use crossterm::style::{self, Stylize};
-//use esbat::{Phase::*, PrincipalPhase};
+#[cfg(feature = "moon")]
+use esbat::{Phase::*, PrincipalPhase};
 use structopt::StructOpt;
 use sunrise::sunrise_sunset;
 use url::Url;
@@ -52,7 +53,7 @@ async fn main() -> Result<()> {
         .periods
         .iter()
         .map(|x| {
-            DateTime::<Utc>::from_utc(x.start_time.naive_utc(), Utc)
+            DateTime::<Utc>::from_naive_utc_and_offset(x.start_time.naive_utc(), Utc)
                 .format("%A %l%P")
                 .to_string()
                 .len()
@@ -70,9 +71,9 @@ async fn main() -> Result<()> {
         .domain(&[0., 32., 72., 84.])
         .build()?;
 
-    fn sun(lat: f64, lon: f64, date: Date<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
+    fn sun(lat: f64, lon: f64, date: DateTime<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
         let (rise, set) = sunrise_sunset(lat, lon, date.year(), date.month(), date.day());
-        (Utc.timestamp(rise, 0), Utc.timestamp(set, 0))
+        (Utc.timestamp_opt(rise, 0).unwrap(), Utc.timestamp_opt(set, 0).unwrap())
     }
 
     // Display time
@@ -91,7 +92,7 @@ async fn main() -> Result<()> {
     );
 
     // Display sun times
-    let (rise, set) = sun(params.latitude, params.longitude, Utc::now().date());
+    let (rise, set) = sun(params.latitude, params.longitude, Utc::now());
     let rise = Local.from_utc_datetime(&rise.naive_utc());
     let set = Local.from_utc_datetime(&set.naive_utc());
     println!(
@@ -102,51 +103,52 @@ async fn main() -> Result<()> {
         set.format("%-I:%M %P")
     );
 
-    /*
-    // Display moon phase
-    //let emoji = esbat::daily_lunar_phase(Utc::now().date()).as_emoji();
-    let moon = match esbat::daily_lunar_phase(Utc::now().date()) {
-        NewMoon => ("New Moon", '\u{1F311}'),
-        WaxingCrescent => ("Waxing Crescent", '\u{1F312}'),
-        FirstQuarter => ("First Quarter", '\u{1F313}'),
-        WaxingGibbous => ("Waxing Gibbous", '\u{1F314}'),
-        FullMoon => ("Full Moon", '\u{1F315}'),
-        WaningGibbous => ("Waning Gibbous", '\u{1F316}'),
-        LastQuarter => ("Last Quarter", '\u{1F317}'),
-        WaningCrescent => ("Waning Crescent", '\u{1F318}'),
-    };
-    //println!("\u{1F311}\u{1F312}\u{1F313}\u{1F314}\u{1F315}\u{1F316}");
-    //println!("\u{1F317}\u{1F318}\u{1F31D}\u{1F31A}\u{1F30C}\u{1F31E}\u{1F31F}\u{1F320}");
-    println!("{} {} {}", "Moon Phase:".blue(), moon.0, moon.1);
+    #[cfg(feature = "moon")]
+    {
+        // Display moon phase
+        //let emoji = esbat::daily_lunar_phase(Utc::now().date()).as_emoji();
+        let moon = match esbat::daily_lunar_phase(Utc::now().date()) {
+            NewMoon => ("New Moon", '\u{1F311}'),
+            WaxingCrescent => ("Waxing Crescent", '\u{1F312}'),
+            FirstQuarter => ("First Quarter", '\u{1F313}'),
+            WaxingGibbous => ("Waxing Gibbous", '\u{1F314}'),
+            FullMoon => ("Full Moon", '\u{1F315}'),
+            WaningGibbous => ("Waning Gibbous", '\u{1F316}'),
+            LastQuarter => ("Last Quarter", '\u{1F317}'),
+            WaningCrescent => ("Waning Crescent", '\u{1F318}'),
+        };
+        //println!("\u{1F311}\u{1F312}\u{1F313}\u{1F314}\u{1F315}\u{1F316}");
+        //println!("\u{1F317}\u{1F318}\u{1F31D}\u{1F31A}\u{1F30C}\u{1F31E}\u{1F31F}\u{1F320}");
+        println!("{} {} {}", "Moon Phase:".blue(), moon.0, moon.1);
 
-    // Display next full moon time
-    let moon_iter = esbat::lunar_phase_iter(Utc::now()..);
-    let next_full = moon_iter
-        .filter_map(|x| {
-            if x.0 == PrincipalPhase::FullMoon {
-                Some(x.1)
-            } else {
-                None
-            }
-        })
-        .take(1)
-        .next();
+        // Display next full moon time
+        let moon_iter = esbat::lunar_phase_iter(Utc::now()..);
+        let next_full = moon_iter
+            .filter_map(|x| {
+                if x.0 == PrincipalPhase::FullMoon {
+                    Some(x.1)
+                } else {
+                    None
+                }
+            })
+            .take(1)
+            .next();
 
-    if let Some(full_time) = next_full {
-        println!(
-            "{} {}",
-            "Next Full Moon:".blue(),
-            Local
-                .from_utc_datetime(&full_time.naive_utc())
-                .format("%A, %B %-e, %-l:%M %P, %Y")
-        );
+        if let Some(full_time) = next_full {
+            println!(
+                "{} {}",
+                "Next Full Moon:".blue(),
+                Local
+                    .from_utc_datetime(&full_time.naive_utc())
+                    .format("%A, %B %-e, %-l:%M %P, %Y")
+            );
+        }
     }
-    */
 
     let tz = point.properties.time_zone;
 
     // Store sunrise/sunset times for each new date
-    let mut sun_times: HashMap<Date<Tz>, (DateTime<Tz>, DateTime<Tz>)> = HashMap::new();
+    let mut sun_times: HashMap<DateTime<Tz>, (DateTime<Tz>, DateTime<Tz>)> = HashMap::new();
 
     // Store last description to avoid printing redundant lines
     let mut last_desc = String::new();
@@ -158,9 +160,9 @@ async fn main() -> Result<()> {
             .unwrap();
         //println!("{:?}", local_time);
         //let time = DateTime::from_utc(period.start_time.naive_utc(), Utc);
-        let date = time.date();
+        let date = time.date_naive();
 
-        let (sunrise, sunset) = sun_times.entry(date).or_insert({
+        let (sunrise, sunset) = sun_times.entry(time).or_insert({
             let (rise, set) = sunrise_sunset(
                 params.latitude,
                 params.longitude,
@@ -168,7 +170,7 @@ async fn main() -> Result<()> {
                 date.month(),
                 date.day(),
             );
-            (tz.timestamp(rise, 0), tz.timestamp(set, 0))
+            (tz.timestamp_opt(rise, 0).unwrap(), tz.timestamp_opt(set, 0).unwrap())
         });
 
         // Format time for display
@@ -213,7 +215,7 @@ async fn main() -> Result<()> {
         };
 
         // Weather icon
-        let icon_url = Url::parse(&period.icon).unwrap();
+        let icon_url = Url::parse(format!("http://asdf.com{}", &period.icon).as_str()).unwrap();
         let mut icon = icon_url.path_segments().unwrap().last().unwrap();
         let mut pct = String::new();
         if icon.contains(',') {

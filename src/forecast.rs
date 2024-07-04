@@ -19,7 +19,7 @@ pub struct Forecast {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ForecastProperties {
-    pub updated: DateTime<FixedOffset>,
+    pub updated: Option<DateTime<FixedOffset>>,
     pub units: String,
     pub forecast_generator: String,
     pub generated_at: DateTime<FixedOffset>,
@@ -135,23 +135,23 @@ pub struct GridpointDataProperties {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeSeries<T> {
-    uom: Option<String>,
-    values: Vec<TimeDatum<T>>,
+    _uom: Option<String>,
+    _values: Vec<TimeDatum<T>>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeDatum<T> {
-    valid_time: Option<TimeInterval>,
-    value: Option<T>,
+    _valid_time: Option<TimeInterval>,
+    _value: Option<T>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeatherDatum {
-    coverage: Option<String>,
-    weather: Option<String>,
-    intensity: Option<String>,
-    visibility: Quantity,
-    attributes: Vec<Value>,
+    _coverage: Option<String>,
+    _weather: Option<String>,
+    _intensity: Option<String>,
+    _visibility: Quantity,
+    _attributes: Vec<Value>,
 }
