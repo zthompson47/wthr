@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::{/*Date, */DateTime, Datelike, Local, TimeZone, Timelike, Utc};
+use chrono::{/*Date, */ DateTime, Datelike, Local, TimeZone, Timelike, Utc};
 use chrono_tz::Tz;
 use colorgrad::{Color, CustomGradient};
 use crossterm::style::{self, Stylize};
@@ -73,7 +73,10 @@ async fn main() -> Result<()> {
 
     fn sun(lat: f64, lon: f64, date: DateTime<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
         let (rise, set) = sunrise_sunset(lat, lon, date.year(), date.month(), date.day());
-        (Utc.timestamp_opt(rise, 0).unwrap(), Utc.timestamp_opt(set, 0).unwrap())
+        (
+            Utc.timestamp_opt(rise, 0).unwrap(),
+            Utc.timestamp_opt(set, 0).unwrap(),
+        )
     }
 
     // Display time
@@ -105,9 +108,9 @@ async fn main() -> Result<()> {
 
     #[cfg(feature = "moon")]
     {
-        // Display moon phase
-        //let emoji = esbat::daily_lunar_phase(Utc::now().date()).as_emoji();
-        let moon = match esbat::daily_lunar_phase(Utc::now().date()) {
+        // Moon phase
+        #[allow(deprecated)]
+        let moon = match esbat::daily_lunar_phase(Local::now().date()) {
             NewMoon => ("New Moon", '\u{1F311}'),
             WaxingCrescent => ("Waxing Crescent", '\u{1F312}'),
             FirstQuarter => ("First Quarter", '\u{1F313}'),
@@ -117,11 +120,9 @@ async fn main() -> Result<()> {
             LastQuarter => ("Last Quarter", '\u{1F317}'),
             WaningCrescent => ("Waning Crescent", '\u{1F318}'),
         };
-        //println!("\u{1F311}\u{1F312}\u{1F313}\u{1F314}\u{1F315}\u{1F316}");
-        //println!("\u{1F317}\u{1F318}\u{1F31D}\u{1F31A}\u{1F30C}\u{1F31E}\u{1F31F}\u{1F320}");
         println!("{} {} {}", "Moon Phase:".blue(), moon.0, moon.1);
 
-        // Display next full moon time
+        // Next full moon
         let moon_iter = esbat::lunar_phase_iter(Utc::now()..);
         let next_full = moon_iter
             .filter_map(|x| {
@@ -133,7 +134,6 @@ async fn main() -> Result<()> {
             })
             .take(1)
             .next();
-
         if let Some(full_time) = next_full {
             println!(
                 "{} {}",
@@ -170,7 +170,10 @@ async fn main() -> Result<()> {
                 date.month(),
                 date.day(),
             );
-            (tz.timestamp_opt(rise, 0).unwrap(), tz.timestamp_opt(set, 0).unwrap())
+            (
+                tz.timestamp_opt(rise, 0).unwrap(),
+                tz.timestamp_opt(set, 0).unwrap(),
+            )
         });
 
         // Format time for display
