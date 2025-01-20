@@ -37,7 +37,7 @@ pub struct Period {
     pub start_time: DateTime<FixedOffset>,
     pub end_time: DateTime<FixedOffset>,
     pub is_daytime: bool,
-    pub temperature: u32,
+    pub temperature: i32,
     pub temperature_unit: String,
     pub temperature_trend: Option<Value>,
     pub wind_speed: String,
